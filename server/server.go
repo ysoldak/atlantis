@@ -295,7 +295,17 @@ func NewServer(userConfig UserConfig, config Config) (*Server, error) {
 		return nil, errors.Wrapf(err,
 			"parsing --%s flag %q", config.AtlantisURLFlag, userConfig.AtlantisURL)
 	}
-	validator := &yaml.ParserValidator{}
+	// Setting the custom named atlantis.yaml
+	validator := &yaml.ParserValidator{
+		AtlantisYAMLFilename: userConfig.AtlantisYamlFile,
+	}
+	validator.SetRepoCfg(userConfig.AtlantisYamlFile)
+
+	// // Setting the ServerId for CommentParser
+	// serverid := &events.CommentParser{
+	// 	ServerID: userConfig.ServerID,
+	// }
+	// serverid.SetServerID(userConfig.ServerID)
 
 	globalCfg := valid.NewGlobalCfg(userConfig.AllowRepoConfig, userConfig.RequireMergeable, userConfig.RequireApproval)
 	if userConfig.RepoConfig != "" {
@@ -342,6 +352,7 @@ func NewServer(userConfig UserConfig, config Config) (*Server, error) {
 		BitbucketUser:   userConfig.BitbucketUser,
 		AzureDevopsUser: userConfig.AzureDevopsUser,
 		ApplyDisabled:   userConfig.DisableApply,
+		ServerID:        userConfig.ServerID,
 	}
 	defaultTfVersion := terraformClient.DefaultVersion()
 	pendingPlanFinder := &events.DefaultPendingPlanFinder{}
